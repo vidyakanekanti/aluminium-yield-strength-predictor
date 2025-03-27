@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yield Strength Predictor</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: url("https://as2.ftcdn.net/jpg/05/17/72/29/1000_F_517722967_kAzikV5u7NyT6tmM7ONaJeqoZbtn8b2y.jpg") no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        input, button {
+            margin: 10px;
+            padding: 10px;
+            width: 80%;
+            border: none;
+            border-radius: 5px;
+        }
+        button {
+            background: blue;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: darkblue;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Yield Strength Predictor</h2>
+        <input type="text" id="processing" placeholder="Processing Technique (e.g., 'Cold Worked')">
+        <input type="number" id="tensile" placeholder="Tensile Strength (MPa)">
+        <button onclick="predict()">Predict</button>
+        <p id="result"></p>
+        <p id="error" class="error"></p>
+    </div>
+
+    <script>
+        async function predict() {
+            document.getElementById("error").innerText = "";
+            document.getElementById("result").innerText = "";
+
+            const processing = document.getElementById("processing").value;
+            const tensile = parseFloat(document.getElementById("tensile").value);
+
+            if (!processing || isNaN(tensile)) {
+                document.getElementById("error").innerText = "Please enter valid inputs!";
+                return;
+            }
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/predict", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ "Processing": processing, "Tensile Strength (MPa)": tensile })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById("result").innerText = "Predicted Yield Strength: " + data["Predicted Yield Strength (MPa)"] + " MPa";
+                } else {
+                    document.getElementById("error").innerText = data.error || "Error predicting yield strength!";
+                }
+            } catch (error) {
+                document.getElementById("error").innerText = "Error connecting to API!";
+            }
+        }
+    </script>
+
+</body>
+</html>
